@@ -860,6 +860,7 @@ downloadImageButton.addEventListener('click', () => {
     const quizResultContent = document.getElementById('quizResultContent'); // 学習結果の主要コンテンツ
     const originalText = generateShareText(); // 生成済みのテキスト
     const resultButtonsDiv = document.querySelector('#quizResult .result-buttons'); // ボタンを含む要素
+    const incorrectWordListSection = document.getElementById('incorrectWordList'); // 間違えた問題一覧セクション
 
     // シェアテキストを一時的に追加
     const shareTextElement = document.createElement('p');
@@ -881,13 +882,15 @@ downloadImageButton.addEventListener('click', () => {
     const shareTextForImage = originalText.replace(/\n/g, '<br>') + '<br><br>#KTKの世界史単語帳';
     shareTextElement.innerHTML = shareTextForImage;
 
-    // ボタンを一時的に非表示にする
+    // ボタンと間違えた問題一覧セクションを一時的に非表示にする
     if (resultButtonsDiv) {
-        resultButtonsDiv.style.visibility = 'hidden'; // または display = 'none';
+        resultButtonsDiv.style.display = 'none'; // <-- ここを修正
+    }
+    if (incorrectWordListSection) {
+        incorrectWordListSection.style.display = 'none'; // <-- ここを修正
     }
 
-    // quizResultContent の親要素 (quizResult) 全体をキャプチャ対象とする
-    // quizResultContent と一時的なシェアテキスト要素を含み、ボタンは非表示になる
+    // quizResult の親要素 (学習結果全体) をキャプチャ対象とする
     const captureTarget = document.getElementById('quizResult');
 
     html2canvas(captureTarget, {
@@ -906,9 +909,12 @@ downloadImageButton.addEventListener('click', () => {
         // 生成後に一時的な要素を削除
         shareTextElement.parentNode.removeChild(shareTextElement);
 
-        // ボタンを再表示する
+        // ボタンと間違えた問題一覧セクションを再表示する
         if (resultButtonsDiv) {
-            resultButtonsDiv.style.visibility = 'visible'; // または display = '' (元の状態に戻す)
+            resultButtonsDiv.style.display = 'flex'; // <-- ここを修正 (ボタンはflexboxで配置されている可能性が高いため)
+        }
+        if (incorrectWordListSection) {
+            incorrectWordListSection.style.display = 'block'; // <-- ここを修正 (通常はblock要素)
         }
     }).catch(error => {
         console.error('画像生成に失敗しました:', error);
@@ -917,9 +923,12 @@ downloadImageButton.addEventListener('click', () => {
         if (shareTextElement.parentNode) {
             shareTextElement.parentNode.removeChild(shareTextElement);
         }
-        // エラー時もボタンを再表示する
+        // エラー時もボタンと間違えた問題一覧セクションを再表示する
         if (resultButtonsDiv) {
-            resultButtonsDiv.style.visibility = 'visible';
+            resultButtonsDiv.style.display = 'flex'; // <-- ここを修正
+        }
+        if (incorrectWordListSection) {
+            incorrectWordListSection.style.display = 'block'; // <-- ここを修正
         }
     });
 });
