@@ -1181,7 +1181,7 @@ function recordCorrectAnswer(word) {
         if (existingIncorrectWord.correctStreak >= 2) {
             currentUser.incorrectWords.splice(existingIncorrectWordIndex, 1);
             messageText.classList.remove('hidden');
-            messageText.textContent = `「${word.question}」を克服！苦手問題から削除しました！`;
+            messageText.textContent = `「苦手克服！苦手問題から削除しました！`;
             messageText.style.color = '#27ae60';
             setTimeout(() => {
                 messageText.classList.add('hidden');
