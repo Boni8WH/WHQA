@@ -56,7 +56,7 @@ const COMMAND_KEY = 'Avignon1309';
 
 
 // 認証関連の要素を取得
-const authSection = document.getElementById('authSection');
+const authSection = document.getElementById('authSection'); // authSectionを改めて取得
 const authMessage = document.getElementById('authMessage');
 const loginRegisterForm = document.getElementById('loginRegisterForm');
 const usernameInput = document.getElementById('usernameInput');
@@ -94,7 +94,7 @@ let lastSelectedQuestionCount = '10';
 // アプリ情報のデータ
 const appInfo = {
     lastUpdated: '2025年6月11日', // 今日の日付を記載
-    updateLog: '初リリース：全19章中、第8章まで実装' // 今回の更新内容を記載
+    updateLog: 'UIデザイン修正と苦手問題機能の改善。' // 今回の更新内容を記載
 };
 
 
@@ -110,7 +110,8 @@ function showSelectionArea() {
     startButton.textContent = '学習開始';
     backToSelectionFromCardButton.classList.add('hidden');
     infoPanel.classList.add('hidden');
-    // authSectionの表示・非表示はupdateAuthUIで制御されるため、ここでは変更しない
+    // ★修正点1: selection-area の時のみ認証セクションを表示★
+    authSection.classList.remove('hidden');
     updateAuthUI(); // 認証UIを更新
 }
 
@@ -122,7 +123,8 @@ function showCardArea() {
     messageText.textContent = '';
     backToSelectionFromCardButton.classList.remove('hidden');
     infoPanel.classList.add('hidden');
-    // authSectionの表示・非表示はupdateAuthUIで制御されるため、ここでは変更しない
+    // ★修正点1: card-area の時は認証セクションを非表示★
+    authSection.classList.add('hidden');
 }
 
 function showQuizResult() {
@@ -132,7 +134,8 @@ function showQuizResult() {
     messageText.classList.remove('hidden');
     backToSelectionFromCardButton.classList.add('hidden');
     infoPanel.classList.add('hidden');
-    // authSectionの表示・非表示はupdateAuthUIで制御されるため、ここでは変更しない
+    // ★修正点1: quizResult の時は認証セクションを非表示★
+    authSection.classList.add('hidden');
 }
 
 // ----------------------------------------------------
@@ -1104,7 +1107,7 @@ function recordCorrectAnswer(word) {
         if (existingIncorrectWord.correctStreak >= 2) {
             currentUser.incorrectWords.splice(existingIncorrectWordIndex, 1);
             messageText.classList.remove('hidden');
-            messageText.textContent = `「${word.question}」を苦手問題から削除しました！`;
+            messageText.textContent = `「克服！苦手問題から削除しました！`;
             messageText.style.color = '#27ae60';
             setTimeout(() => {
                 messageText.classList.add('hidden');

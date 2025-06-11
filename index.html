@@ -8,20 +8,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <section id="authSection" class="auth-section">
-        <div id="loggedInUserArea" class="logged-in-user-area hidden">
-            <p>ようこそ、<span id="loggedInUsername"></span>さん！</p>
-            <button id="logoutButton" class="auth-button small-auth-button">ログアウト</button>
-        </div>
-        <div id="loginRegisterForm" class="login-register-form hidden">
-            <p id="authMessage" class="auth-message"></p>
-            <input type="text" id="usernameInput" placeholder="アカウント名" required>
-            <input type="password" id="passwordInput" placeholder="パスワード" required>
-            <button id="loginButton" class="auth-button small-auth-button">ログイン</button>
-            <button id="registerButton" class="auth-button small-auth-button secondary-auth-button">新規登録</button>
-        </div>
-    </section>
-
     <div class="container">
         <header>
             <h1>世界史単語帳</h1>
@@ -29,6 +15,20 @@
         </header>
 
         <section class="selection-area">
+            <section id="authSection" class="auth-section">
+                <div id="loggedInUserArea" class="logged-in-user-area hidden">
+                    <p>ようこそ、<span id="loggedInUsername"></span>さん！</p>
+                    <button id="logoutButton" class="auth-button small-auth-button">ログアウト</button>
+                </div>
+                <div id="loginRegisterForm" class="login-register-form hidden">
+                    <p id="authMessage" class="auth-message"></p>
+                    <input type="text" id="usernameInput" placeholder="アカウント名" required>
+                    <input type="password" id="passwordInput" placeholder="パスワード" required>
+                    <button id="loginButton" class="auth-button small-auth-button">ログイン</button>
+                    <button id="registerButton" class="auth-button small-auth-button secondary-auth-button">新規登録</button>
+                </div>
+            </section>
+
             <h2>
                 出題範囲
                 <span id="infoIcon" class="info-icon">ⓘ</span>
@@ -66,7 +66,7 @@
             <div class="chapters-container">
             </div>
             <div class="selection-buttons">
-                <button id="startButton">学習開始</button>
+                <button id="startButton" class="main-action-button">学習開始</button>
                 <button id="resetSelectionButton" class="secondary-button">選択リセット</button>
             </div>
 

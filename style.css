@@ -21,7 +21,7 @@ body {
     width: 100%;
     box-sizing: border-box;
     position: relative; /* 他の要素とのz-indexのため */
-    z-index: 1; /* auth-sectionより手前に表示 */
+    z-index: 1;
 }
 
 header {
@@ -52,58 +52,54 @@ header h1 {
 
 
 /* ------------------------------------
-    アカウント認証エリアのスタイル (★ここを大きく変更★)
+    アカウント認証エリアのスタイル (★修正点: position:fixed を削除★)
 ------------------------------------ */
 .auth-section {
-    position: fixed; /* 画面に固定 */
-    top: 10px;
-    right: 10px;
     background-color: #f0f0f0; /* 少し薄めの背景色 */
     border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 8px 12px; /* パディングを小さく */
+    padding: 15px; /* パディングを通常に戻す */
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    z-index: 1000; /* 他のコンテンツの上に表示 */
-    font-size: 0.9em; /* 文字サイズを小さく */
-    max-width: 250px; /* 最大幅を設定 */
-    box-sizing: border-box;
-    text-align: right; /* テキスト右寄せ */
+    margin-bottom: 20px; /* 下にスペースを追加 */
+    text-align: center; /* 中央寄せ */
 }
 
 .auth-message {
     font-size: 0.9em;
     color: #0050b3;
-    margin-bottom: 5px; /* マージンを小さく */
+    margin-bottom: 10px; /* マージンを通常に戻す */
     text-align: center;
 }
 
 .login-register-form {
     display: flex;
     flex-direction: column;
-    gap: 5px; /* 要素間の隙間を小さく */
+    gap: 10px; /* 要素間の隙間を通常に戻す */
     align-items: center;
 }
 
 .login-register-form input[type="text"],
 .login-register-form input[type="password"] {
-    width: 100%; /* 親要素に合わせて調整 */
-    padding: 6px 8px; /* パディングを小さく */
+    width: calc(100% - 20px); /* 幅を調整 */
+    padding: 10px; /* パディングを通常に戻す */
     border: 1px solid #d9d9d9;
     border-radius: 4px;
     box-sizing: border-box;
-    font-size: 0.9em;
+    font-size: 1em; /* 文字サイズを通常に戻す */
+    max-width: 300px; /* 最大幅を設定 */
 }
 
 .auth-button {
     background-color: #1890ff;
     color: white;
     border: none;
-    padding: 6px 12px; /* パディングを小さく */
+    padding: 10px 20px; /* パディングを通常に戻す */
     border-radius: 5px;
     cursor: pointer;
-    font-size: 0.9em; /* 文字サイズを小さく */
-    margin: 3px; /* マージンを小さく */
+    font-size: 1em; /* 文字サイズを通常に戻す */
+    margin: 5px; /* マージンを通常に戻す */
     transition: background-color 0.3s ease;
+    width: auto; /* 幅をコンテンツに合わせる */
 }
 
 .auth-button:hover {
@@ -111,9 +107,8 @@ header h1 {
 }
 
 .small-auth-button {
-    padding: 5px 10px;
-    font-size: 0.8em;
-    width: auto; /* ボタンの幅をコンテンツに合わせる */
+    padding: 8px 15px; /* 小さめのボタンのパディングを調整 */
+    font-size: 0.9em; /* 小さめのボタンのフォントサイズを調整 */
 }
 
 .secondary-auth-button {
@@ -126,12 +121,12 @@ header h1 {
 
 /* ログイン後の表示エリア */
 .logged-in-user-area {
-    font-size: 1em; /* 少し小さめに */
+    font-size: 1em;
     color: #0050b3;
     display: flex; /* 横並びにする */
     align-items: center;
-    gap: 10px; /* アイテム間の隙間 */
-    justify-content: flex-end; /* 右寄せ */
+    gap: 15px; /* アイテム間の隙間 */
+    justify-content: center; /* 中央寄せ */
 }
 
 .logged-in-user-area p {
@@ -684,24 +679,31 @@ p#message {
 
     /* auth-sectionのスマホ対応 */
     .auth-section {
-        position: static; /* 固定解除 */
-        top: auto;
-        right: auto;
-        width: 100%; /* 横幅いっぱい */
-        max-width: none;
-        margin-bottom: 10px; /* 下にスペース */
-        text-align: center;
         padding: 10px;
-    }
-    .logged-in-user-area {
-        justify-content: center; /* 中央寄せ */
-    }
-    .login-register-form {
-        width: 100%;
-        max-width: 300px; /* フォームの最大幅 */
-        margin: 0 auto; /* 中央寄せ */
+        margin-bottom: 15px;
     }
 
+    .logged-in-user-area {
+        flex-direction: column; /* スマホでは縦並び */
+        gap: 5px;
+        text-align: center;
+    }
+
+    .login-register-form {
+        max-width: none; /* スマホでは最大幅解除 */
+    }
+
+    .login-register-form input[type="text"],
+    .login-register-form input[type="password"] {
+        width: 100%;
+        max-width: none;
+    }
+
+    .auth-button {
+        width: auto; /* ボタンの幅をコンテンツに合わせる */
+        font-size: 0.9em; /* 少し小さめに */
+        padding: 8px 15px;
+    }
 
     header h1 {
         font-size: 1.8em;
