@@ -31,6 +31,7 @@ const questionCountRadios = document.querySelectorAll('input[name="questionCount
 // Quiz Result Section Elements
 const quizResult = document.getElementById('quizResult');
 const totalQuestionsCountSpan = document.getElementById('totalQuestionsCount');
+const selectedRangeTotalQuestionsSpan = document.getElementById('selectedRangeTotalQuestions'); // 追加
 const correctCountSpan = document.getElementById('correctCount');
 const incorrectCountSpan = document.getElementById('incorrectCount');
 const accuracyRateSpan = document.getElementById('accuracyRate');
@@ -40,7 +41,11 @@ const incorrectWordsContainer = document.getElementById('incorrectWordsContainer
 // 新しいボタン要素の取得
 const restartQuizButton = document.getElementById('restartQuizButton');
 const resetSelectionButton = document.getElementById('resetSelectionButton');
-const showWeakWordsButton = document.getElementById('showWeakWordsButton'); // 追加
+const showWeakWordsButton = document.getElementById('showWeakWordsButton');
+
+// SNSシェアボタンの取得 (追加)
+const shareXButton = document.getElementById('shareXButton');
+const downloadImageButton = document.getElementById('downloadImageButton'); // 新しいダウンロードボタン
 
 // アプリ情報関連の要素
 const infoIcon = document.getElementById('infoIcon');
@@ -72,9 +77,9 @@ const logoutButton = document.getElementById('logoutButton');
 const incorrectOnlyRadio = document.getElementById('incorrectOnlyRadio');
 
 // 苦手問題一覧セクションの要素
-const weakWordsListSection = document.getElementById('weakWordsListSection'); // 追加
-const weakWordsContainer = document.getElementById('weakWordsContainer'); // 追加
-const backToSelectionFromWeakListButton = document.getElementById('backToSelectionFromWeakListButton'); // 追加
+const weakWordsListSection = document.getElementById('weakWordsListSection');
+const weakWordsContainer = document.getElementById('weakWordsContainer');
+const backToSelectionFromWeakListButton = document.getElementById('backToSelectionFromWeakListButton');
 
 // ローカルストレージのユーザー情報キー
 const LOCAL_STORAGE_USERS_KEY = 'quizUsers';
@@ -100,7 +105,7 @@ let lastSelectedQuestionCount = '10';
 // アプリ情報のデータ
 const appInfo = {
     lastUpdated: '2025年6月11日', // 今日の日付を記載
-    updateLog: 'UIデザイン修正と苦手問題機能の改善。苦手問題一覧機能を追加。' // 今回の更新内容を記載
+    updateLog: 'UIデザイン修正と苦手問題機能の改善。苦手問題一覧機能を追加。学習結果に全問題数を表示し、SNSシェアボタンを追加。' // 今回の更新内容を記載
 };
 
 
@@ -111,7 +116,7 @@ function showSelectionArea() {
     selectionArea.classList.remove('hidden');
     cardArea.classList.add('hidden');
     quizResult.classList.add('hidden');
-    weakWordsListSection.classList.add('hidden'); // 追加: 苦手問題一覧セクションを非表示に
+    weakWordsListSection.classList.add('hidden');
     messageText.classList.add('hidden');
     messageText.textContent = '';
     startButton.textContent = '学習開始';
@@ -125,7 +130,7 @@ function showCardArea() {
     selectionArea.classList.add('hidden');
     cardArea.classList.remove('hidden');
     quizResult.classList.add('hidden');
-    weakWordsListSection.classList.add('hidden'); // 追加: 苦手問題一覧セクションを非表示に
+    weakWordsListSection.classList.add('hidden');
     messageText.classList.add('hidden');
     messageText.textContent = '';
     backToSelectionFromCardButton.classList.remove('hidden');
@@ -137,19 +142,19 @@ function showQuizResult() {
     selectionArea.classList.add('hidden');
     cardArea.classList.add('hidden');
     quizResult.classList.remove('hidden');
-    weakWordsListSection.classList.add('hidden'); // 追加: 苦手問題一覧セクションを非表示に
+    weakWordsListSection.classList.add('hidden');
     messageText.classList.remove('hidden');
     backToSelectionFromCardButton.classList.add('hidden');
     infoPanel.classList.add('hidden');
     authSection.classList.add('hidden');
 }
 
-// 苦手問題一覧セクションを表示する関数 (追加)
+// 苦手問題一覧セクションを表示する関数
 function showWeakWordsListArea() {
     selectionArea.classList.add('hidden');
     cardArea.classList.add('hidden');
     quizResult.classList.add('hidden');
-    weakWordsListSection.classList.remove('hidden'); // 苦手問題一覧セクションを表示
+    weakWordsListSection.classList.remove('hidden');
     messageText.classList.add('hidden');
     backToSelectionFromCardButton.classList.add('hidden');
     infoPanel.classList.add('hidden');
@@ -828,7 +833,7 @@ commandInput.addEventListener('keypress', (event) => {
     }
 });
 
-// 苦手問題一覧ボタンのイベントリスナー (追加)
+// 苦手問題一覧ボタンのイベントリスナー
 showWeakWordsButton.addEventListener('click', () => {
     if (!currentUser) {
         alert('苦手問題一覧を見るにはログインが必要です。');
@@ -837,9 +842,86 @@ showWeakWordsButton.addEventListener('click', () => {
     showWeakWordsListArea();
 });
 
-// 苦手問題一覧からの戻るボタン (追加)
+// 苦手問題一覧からの戻るボタン
 backToSelectionFromWeakListButton.addEventListener('click', () => {
     showSelectionArea();
+});
+
+shareXButton.addEventListener('click', () => {
+    const text = generateShareText();
+    const url = encodeURIComponent(window.location.href); // アプリのURL
+    const hashtags = encodeURIComponent('KTKの世界史単語帳'); // ハッシュタグ
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${url}&hashtags=${hashtags}`;
+    window.open(twitterUrl, '_blank');
+});
+
+// 画像ダウンロードボタンのイベントリスナー (downloadImageButtonに統合)
+downloadImageButton.addEventListener('click', () => {
+    const quizResultContent = document.getElementById('quizResultContent'); // 学習結果の主要コンテンツ
+    const originalText = generateShareText(); // 生成済みのテキスト
+    const resultButtonsDiv = document.querySelector('#quizResult .result-buttons'); // ボタンを含む要素
+
+    // シェアテキストを一時的に追加
+    const shareTextElement = document.createElement('p');
+    shareTextElement.id = 'tempShareTextForImage';
+    shareTextElement.style.marginTop = '20px';
+    shareTextElement.style.padding = '15px';
+    shareTextElement.style.backgroundColor = '#f9f9f9';
+    shareTextElement.style.border = '1px dashed #ddd';
+    shareTextElement.style.borderRadius = '8px';
+    shareTextElement.style.textAlign = 'left';
+    shareTextElement.style.fontSize = '0.9em';
+    shareTextElement.style.whiteSpace = 'normal';
+    shareTextElement.style.wordBreak = 'break-word';
+
+    // quizResultContent の直後に挿入 (quizResultContent の親要素の子として)
+    quizResultContent.parentNode.insertBefore(shareTextElement, quizResultContent.nextSibling);
+
+    // 生成するテキストコンテンツ（改行を <br> に置換してより見た目を近づける）
+    const shareTextForImage = originalText.replace(/\n/g, '<br>') + '<br><br>#KTKの世界史単語帳';
+    shareTextElement.innerHTML = shareTextForImage;
+
+    // ボタンを一時的に非表示にする
+    if (resultButtonsDiv) {
+        resultButtonsDiv.style.visibility = 'hidden'; // または display = 'none';
+    }
+
+    // quizResultContent の親要素 (quizResult) 全体をキャプチャ対象とする
+    // quizResultContent と一時的なシェアテキスト要素を含み、ボタンは非表示になる
+    const captureTarget = document.getElementById('quizResult');
+
+    html2canvas(captureTarget, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null
+    }).then(canvas => {
+        const image = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = '世界史単語帳_学習結果.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // 生成後に一時的な要素を削除
+        shareTextElement.parentNode.removeChild(shareTextElement);
+
+        // ボタンを再表示する
+        if (resultButtonsDiv) {
+            resultButtonsDiv.style.visibility = 'visible'; // または display = '' (元の状態に戻す)
+        }
+    }).catch(error => {
+        console.error('画像生成に失敗しました:', error);
+        alert('画像生成に失敗しました。お使いのブラウザではこの機能がサポートされていない可能性があります。');
+        // エラー時も一時的な要素を削除
+        if (shareTextElement.parentNode) {
+            shareTextElement.parentNode.removeChild(shareTextElement);
+        }
+        // エラー時もボタンを再表示する
+        if (resultButtonsDiv) {
+            resultButtonsDiv.style.visibility = 'visible';
+        }
+    });
 });
 
 
@@ -883,6 +965,13 @@ function endQuiz() {
     incorrectCountSpan.textContent = incorrectCount;
     const accuracy = totalQuestions > 0 ? ((correctCount / totalQuestions) * 100).toFixed(1) : 0;
     accuracyRateSpan.textContent = `${accuracy}`;
+
+    // 指定範囲の全問題数を表示 (追加)
+    // 選択された単元に基づいて、有効な単語の総数をカウント
+    const selectedUnitNumbers = Array.from(document.querySelectorAll('.unit-list input[type="checkbox"]:checked:not([disabled])'))
+                                        .map(checkbox => checkbox.value);
+    const totalWordsInSelectedRange = wordData.filter(word => selectedUnitNumbers.includes(word.number) && word.enabled === '1').length;
+    selectedRangeTotalQuestionsSpan.textContent = totalWordsInSelectedRange;
 
     incorrectWordsContainer.innerHTML = '';
     if (incorrectWords.length > 0) {
@@ -1121,7 +1210,9 @@ function unlockAllUnits() {
  * @returns {string} - 問題のユニークID (例: chX-uY-questionText)
  */
 function getProblemId(word) {
-    return `${word.chapter}-${word.number}-${word.question}`;
+    // chapter, number, question を結合してユニークなIDを生成
+    // スペースや特殊文字が含まれる可能性を考慮し、シンプルな結合にする
+    return `${word.chapter}_${word.number}_${word.question.replace(/\s/g, '_').replace(/[^\w-]/g, '').substring(0, 50)}`;
 }
 
 
@@ -1181,7 +1272,7 @@ function recordCorrectAnswer(word) {
         if (existingIncorrectWord.correctStreak >= 2) {
             currentUser.incorrectWords.splice(existingIncorrectWordIndex, 1);
             messageText.classList.remove('hidden');
-            messageText.textContent = `「苦手克服！苦手問題から削除しました！`;
+            messageText.textContent = `「${word.question}」を克服！苦手問題から削除しました！`;
             messageText.style.color = '#27ae60';
             setTimeout(() => {
                 messageText.classList.add('hidden');
@@ -1201,7 +1292,7 @@ function recordCorrectAnswer(word) {
 }
 
 /**
- * ユーザーの苦手問題一覧を表示する関数 (追加)
+ * ユーザーの苦手問題一覧を表示する関数
  */
 function displayWeakWordsList() {
     weakWordsContainer.innerHTML = '';
@@ -1273,10 +1364,31 @@ function displayWeakWordsList() {
 
         answerContainer.appendChild(answerSpan);
         answerContainer.appendChild(showAnswerBtn);
-        answerContainer.appendChild(accuracyDisplay); // 正答率表示を答えの横に追加
+        answerContainer.appendChild(accuracyDisplay);
 
         listItem.appendChild(questionSpan);
         listItem.appendChild(answerContainer);
         weakWordsContainer.appendChild(listItem);
     });
+}
+
+function generateShareText() {
+    const totalQuestions = correctCount + incorrectCount;
+    const accuracy = totalQuestions > 0 ? ((correctCount / totalQuestions) * 100).toFixed(1) : 0;
+    const selectedUnitNumbers = Array.from(document.querySelectorAll('.unit-list input[type="checkbox"]:checked:not([disabled])'))
+                                        .map(checkbox => checkbox.value);
+    const totalWordsInSelectedRange = wordData.filter(word => selectedUnitNumbers.includes(word.number) && word.enabled === '1').length;
+    let rangeText = '';
+
+    if (lastSelectedQuestionCount === 'incorrectOnly') {
+        rangeText = '苦手問題';
+    } else if (selectedUnitNumbers.length > 0) {
+        rangeText = `選択範囲(${totalWordsInSelectedRange}問)`;
+    } else {
+        const totalAvailableWords = wordData.filter(word => word.enabled === '1').length;
+        rangeText = `全範囲(${totalAvailableWords}問)`;
+    }
+
+    const shareText = `世界史単語帳で学習しました！\n\n「${rangeText}」の学習結果:\n出題数: ${totalQuestions}問\n正解数: ${correctCount}問\n正答率: ${accuracy}%\n\nあなたも一緒に学習しませんか？`;
+    return shareText;
 }

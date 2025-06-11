@@ -666,9 +666,47 @@ header h1 {
 
 .result-buttons {
     display: flex;
+    flex-wrap: wrap; /* ボタンが複数行になっても対応 */
     justify-content: center;
     gap: 15px;
     margin-top: 30px;
+}
+
+/* SNSシェアボタンのスタイル */
+.social-share-button {
+    width: 50px; /* アイコンのサイズに合わせて調整 */
+    height: 50px;
+    border-radius: 50%; /* 丸いボタンにする */
+    border: none;
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.social-share-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.instagram-button {
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+}
+
+.x-button { /* 旧TwitterのロゴがXになったため */
+    background-color: #000; /* 黒 */
+}
+
+/* 画像シェアボタンのスタイルを追加 */
+.image-button {
+    background-color: #8e44ad; /* 紫系 */
+}
+
+.image-button:hover {
+    background-color: #9b59b6;
 }
 
 /* 苦手問題一覧固有のスタイル */
@@ -706,6 +744,7 @@ header h1 {
     color: #d35400; /* 正答率を強調 */
 }
 
+#quizResult { aspect-ratio: 16 / 9; }
 
 /* メッセージ表示 */
 p#message {
@@ -791,6 +830,19 @@ p#message {
     .main-action-button, .secondary-button, .auth-button, .score-button {
         width: 100%;
         max-width: 300px;
+    }
+
+    /* SNSボタンのスマホ対応 */
+    .social-share-button {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3em;
+        margin: 5px; /* マージン調整 */
+    }
+    .result-buttons {
+        flex-direction: row; /* スマホでも横並びを維持 */
+        justify-content: center;
+        flex-wrap: wrap; /* 必要に応じて折り返す */
     }
 
     .command-input-area {

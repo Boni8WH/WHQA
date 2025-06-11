@@ -6,6 +6,7 @@
     <link rel="icon" type="image/png" href="NapoleonIcon.png">
     <title>世界史単語帳</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
@@ -102,26 +103,34 @@
         </section>
 
         <section id="quizResult" class="quiz-result hidden">
-            <h3>学習結果</h3>
-            <p><span id="totalQuestionsCount">0</span>問中 <span id="correctCount">0</span>問正解</p>
-            <p>不正解数: <span id="incorrectCount">0</span>問</p>
-            <p>正答率: <span id="accuracyRate">0</span>%</p>
+            <div id="quizResultContent"> <h3>学習結果</h3>
+                <p>出題数: <span id="totalQuestionsCount">0</span>問 (<span id="selectedRangeTotalQuestions">0</span>問中)</p>
+                <p>正解数: <span id="correctCount">0</span>問</p>
+                <p>不正解数: <span id="incorrectCount">0</span>問</p>
+                <p>正答率: <span id="accuracyRate">0</span>%</p>
 
-            <div id="incorrectWordList" class="incorrect-word-list hidden">
-                <h4>間違えた問題</h4>
-                <ul id="incorrectWordsContainer">
-                </ul>
+                <div id="incorrectWordList" class="incorrect-word-list hidden">
+                    <h4>間違えた問題</h4>
+                    <ul id="incorrectWordsContainer">
+                    </ul>
+                </div>
             </div>
             <div class="result-buttons">
                 <button id="restartQuizButton" class="main-action-button">もう1回</button>
                 <button id="backToSelectionButton" class="secondary-button">範囲選択に戻る</button>
+                <button id="downloadImageButton" class="social-share-button instagram-button" title="結果を画像としてダウンロード">
+                    <i class="fab fa-instagram"></i>
+                </button>
+                <button id="shareXButton" class="social-share-button x-button" title="Xでシェア">
+                    X
+                </button>
             </div>
         </section>
 
         <section id="weakWordsListSection" class="weak-words-list-section hidden">
             <h3>苦手問題一覧 (正答率順)</h3>
             <div class="weak-words-info">
-                <p>正答率が低い20問を表示しています。</p>
+                <p>正答率が低い上位20問</p>
             </div>
             <ul id="weakWordsContainer">
                 </ul>
@@ -133,6 +142,7 @@
         <p id="message" class="hidden"></p>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
