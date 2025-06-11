@@ -52,7 +52,7 @@ header h1 {
 
 
 /* ------------------------------------
-    アカウント認証エリアのスタイル (★修正点: position:fixed を削除★)
+    アカウント認証エリアのスタイル
 ------------------------------------ */
 .auth-section {
     background-color: #f0f0f0; /* 少し薄めの背景色 */
@@ -83,7 +83,7 @@ header h1 {
     width: calc(100% - 20px); /* 幅を調整 */
     padding: 10px; /* パディングを通常に戻す */
     border: 1px solid #d9d9d9;
-    border-radius: 4px;
+    border-radius: 4-px;
     box-sizing: border-box;
     font-size: 1em; /* 文字サイズを通常に戻す */
     max-width: 300px; /* 最大幅を設定 */
@@ -367,6 +367,7 @@ header h1 {
 
 .selection-buttons {
     display: flex;
+    flex-wrap: wrap; /* ボタンが複数行になっても対応 */
     justify-content: center;
     gap: 15px;
     margin-bottom: 20px;
@@ -489,6 +490,7 @@ header h1 {
     width: 100%;
     text-align: center;
     min-height: 150px;
+    word-break: break-word; /* 長い単語の折り返し */
 }
 
 .card-text {
@@ -506,6 +508,7 @@ header h1 {
     justify-content: center;
     align-items: center;
     box-sizing: border-box;
+    text-align: center; /* 中央寄せ */
 }
 
 .card-text#answer {
@@ -557,7 +560,8 @@ header h1 {
 /* ------------------------------------
     結果表示セクションのスタイル
 ------------------------------------ */
-.quiz-result {
+.quiz-result,
+.weak-words-list-section { /* 苦手問題一覧も同様の基本スタイルに */
     text-align: center;
     padding: 20px;
     background-color: #ecf0f1;
@@ -565,13 +569,15 @@ header h1 {
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 
-.quiz-result h3 {
+.quiz-result h3,
+.weak-words-list-section h3 {
     color: #2c3e50;
     font-size: 1.8em;
     margin-bottom: 20px;
 }
 
-.quiz-result p {
+.quiz-result p,
+.weak-words-list-section p {
     font-size: 1.2em;
     margin-bottom: 10px;
     color: #555;
@@ -586,7 +592,8 @@ header h1 {
     color: #27ae60;
 }
 
-.incorrect-word-list {
+.incorrect-word-list,
+.weak-words-list-section ul { /* 苦手問題一覧のリストも同様のスタイルに */
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -596,7 +603,8 @@ header h1 {
     box-shadow: 0 1px 5px rgba(0,0,0,0.05);
 }
 
-.incorrect-word-list h4 {
+.incorrect-word-list h4,
+.weak-words-list-section h4 {
     color: #e74c3c;
     margin-top: 0;
     border-bottom: 1px dashed #e74c3c;
@@ -605,45 +613,52 @@ header h1 {
     font-size: 1.1em;
 }
 
-.incorrect-word-list ul {
+.incorrect-word-list ul,
+.weak-words-list-section ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.incorrect-word-list li {
+.incorrect-word-list li,
+.weak-words-list-section li { /* 苦手問題一覧のリストアイテムも同様のスタイルに */
     margin-bottom: 15px;
     padding-bottom: 15px;
     border-bottom: 1px dashed #eee;
 }
 
-.incorrect-word-list li:last-child {
+.incorrect-word-list li:last-child,
+.weak-words-list-section li:last-child {
     border-bottom: none;
     margin-bottom: 0;
     padding-bottom: 0;
 }
 
-.incorrect-question {
+.incorrect-question,
+.weak-words-list-section .question-text { /* 苦手問題一覧の問題テキストも同様のスタイルに */
     font-weight: bold;
     color: #333;
     display: block;
     margin-bottom: 5px;
 }
 
-.incorrect-answer-container {
+.incorrect-answer-container,
+.weak-words-list-section .answer-container { /* 苦手問題一覧の答えコンテナも同様のスタイルに */
     display: flex;
     align-items: center;
     gap: 10px;
     font-size: 0.95em;
 }
 
-.incorrect-answer {
+.incorrect-answer,
+.weak-words-list-section .answer-text { /* 苦手問題一覧の答えテキストも同様のスタイルに */
     color: #e74c3c;
     font-weight: bold;
     flex-grow: 1;
 }
 
-.show-incorrect-answer-button {
+.show-incorrect-answer-button,
+.weak-words-list-section .show-answer-button { /* 苦手問題一覧の答え表示ボタンも同様のスタイルに */
     padding: 5px 10px;
     font-size: 0.85em;
     border-radius: 5px;
@@ -655,6 +670,42 @@ header h1 {
     gap: 15px;
     margin-top: 30px;
 }
+
+/* 苦手問題一覧固有のスタイル */
+.weak-words-list-section {
+    padding-top: 15px; /* 上部のスペースを調整 */
+}
+
+.weak-words-info {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #fff8e1; /* 目立つ背景色 */
+    border: 1px solid #ffe082;
+    border-radius: 8px;
+    font-size: 0.9em;
+    color: #6a4f00;
+}
+
+.weak-words-note {
+    font-size: 0.8em;
+    color: #9a7b00;
+    margin-top: 5px;
+    border-top: 1px dashed #ffecb3;
+    padding-top: 5px;
+}
+
+.weak-words-list-section .accuracy-display {
+    font-size: 0.9em;
+    color: #777;
+    margin-left: 10px;
+    white-space: nowrap; /* 折り返しを防ぐ */
+}
+
+.weak-words-list-section .accuracy-display .rate {
+    font-weight: bold;
+    color: #d35400; /* 正答率を強調 */
+}
+
 
 /* メッセージ表示 */
 p#message {
@@ -745,5 +796,15 @@ p#message {
     .command-input-area {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .weak-words-list-section .accuracy-display {
+        display: block; /* スマホでは縦に並べる */
+        margin-left: 0;
+        text-align: right;
+    }
+
+    .weak-words-list-section .question-text {
+        word-break: break-all; /* 長い問題文も確実に折り返し */
     }
 }

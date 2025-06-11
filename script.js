@@ -40,6 +40,7 @@ const incorrectWordsContainer = document.getElementById('incorrectWordsContainer
 // 新しいボタン要素の取得
 const restartQuizButton = document.getElementById('restartQuizButton');
 const resetSelectionButton = document.getElementById('resetSelectionButton');
+const showWeakWordsButton = document.getElementById('showWeakWordsButton'); // 追加
 
 // アプリ情報関連の要素
 const infoIcon = document.getElementById('infoIcon');
@@ -56,7 +57,7 @@ const COMMAND_KEY = 'Avignon1309';
 
 
 // 認証関連の要素を取得
-const authSection = document.getElementById('authSection'); // authSectionを改めて取得
+const authSection = document.getElementById('authSection');
 const authMessage = document.getElementById('authMessage');
 const loginRegisterForm = document.getElementById('loginRegisterForm');
 const usernameInput = document.getElementById('usernameInput');
@@ -70,11 +71,16 @@ const logoutButton = document.getElementById('logoutButton');
 // 苦手問題ラジオボタンを取得
 const incorrectOnlyRadio = document.getElementById('incorrectOnlyRadio');
 
+// 苦手問題一覧セクションの要素
+const weakWordsListSection = document.getElementById('weakWordsListSection'); // 追加
+const weakWordsContainer = document.getElementById('weakWordsContainer'); // 追加
+const backToSelectionFromWeakListButton = document.getElementById('backToSelectionFromWeakListButton'); // 追加
+
 // ローカルストレージのユーザー情報キー
 const LOCAL_STORAGE_USERS_KEY = 'quizUsers';
 
 let currentUser = null; // 現在ログイン中のユーザー
-let users = {}; // 全ユーザー情報を保持するオブジェクト { username: { passwordHash: '...', incorrectWords: [...] } }
+let users = {}; // 全ユーザー情報を保持するオブジェクト { username: { passwordHash: '...', incorrectWords: [...], problemHistory: {...} } }
 
 let wordData = []; // CSVから読み込んだ全単語データ
 let chapterData = {}; // 章と単元で整理された単語データ
@@ -94,7 +100,7 @@ let lastSelectedQuestionCount = '10';
 // アプリ情報のデータ
 const appInfo = {
     lastUpdated: '2025年6月11日', // 今日の日付を記載
-    updateLog: 'UIデザイン修正と苦手問題機能の改善。' // 今回の更新内容を記載
+    updateLog: 'UIデザイン修正と苦手問題機能の改善。苦手問題一覧機能を追加。' // 今回の更新内容を記載
 };
 
 
@@ -105,12 +111,12 @@ function showSelectionArea() {
     selectionArea.classList.remove('hidden');
     cardArea.classList.add('hidden');
     quizResult.classList.add('hidden');
+    weakWordsListSection.classList.add('hidden'); // 追加: 苦手問題一覧セクションを非表示に
     messageText.classList.add('hidden');
     messageText.textContent = '';
     startButton.textContent = '学習開始';
     backToSelectionFromCardButton.classList.add('hidden');
     infoPanel.classList.add('hidden');
-    // ★修正点1: selection-area の時のみ認証セクションを表示★
     authSection.classList.remove('hidden');
     updateAuthUI(); // 認証UIを更新
 }
@@ -119,11 +125,11 @@ function showCardArea() {
     selectionArea.classList.add('hidden');
     cardArea.classList.remove('hidden');
     quizResult.classList.add('hidden');
+    weakWordsListSection.classList.add('hidden'); // 追加: 苦手問題一覧セクションを非表示に
     messageText.classList.add('hidden');
     messageText.textContent = '';
     backToSelectionFromCardButton.classList.remove('hidden');
     infoPanel.classList.add('hidden');
-    // ★修正点1: card-area の時は認証セクションを非表示★
     authSection.classList.add('hidden');
 }
 
@@ -131,12 +137,26 @@ function showQuizResult() {
     selectionArea.classList.add('hidden');
     cardArea.classList.add('hidden');
     quizResult.classList.remove('hidden');
+    weakWordsListSection.classList.add('hidden'); // 追加: 苦手問題一覧セクションを非表示に
     messageText.classList.remove('hidden');
     backToSelectionFromCardButton.classList.add('hidden');
     infoPanel.classList.add('hidden');
-    // ★修正点1: quizResult の時は認証セクションを非表示★
     authSection.classList.add('hidden');
 }
+
+// 苦手問題一覧セクションを表示する関数 (追加)
+function showWeakWordsListArea() {
+    selectionArea.classList.add('hidden');
+    cardArea.classList.add('hidden');
+    quizResult.classList.add('hidden');
+    weakWordsListSection.classList.remove('hidden'); // 苦手問題一覧セクションを表示
+    messageText.classList.add('hidden');
+    backToSelectionFromCardButton.classList.add('hidden');
+    infoPanel.classList.add('hidden');
+    authSection.classList.add('hidden');
+    displayWeakWordsList(); // 苦手問題一覧の表示ロジックを呼び出す
+}
+
 
 // ----------------------------------------------------
 // 初期化処理：DOMが読み込まれたら単語データを読み込む
@@ -356,6 +376,12 @@ function loadUsers() {
     const storedUsers = localStorage.getItem(LOCAL_STORAGE_USERS_KEY);
     if (storedUsers) {
         users = JSON.parse(storedUsers);
+        // 既存ユーザーにproblemHistoryがなければ初期化
+        for (const username in users) {
+            if (!users[username].problemHistory) {
+                users[username].problemHistory = {};
+            }
+        }
     } else {
         users = {};
     }
@@ -369,6 +395,10 @@ function loadCurrentUser() {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser && users[savedUser]) {
         currentUser = users[savedUser];
+        // problemHistoryがない場合は初期化
+        if (!currentUser.problemHistory) {
+            currentUser.problemHistory = {};
+        }
     } else {
         currentUser = null;
     }
@@ -392,6 +422,9 @@ function updateAuthUI() {
         loggedInUsernameSpan.textContent = currentUser.username;
         // ログイン中は苦手問題ラジオボタンを有効にする
         incorrectOnlyRadio.disabled = false;
+        // ログイン中は苦手問題一覧ボタンを有効にする
+        showWeakWordsButton.classList.remove('hidden'); // ボタンを表示
+        showWeakWordsButton.disabled = false;
     } else {
         authMessage.textContent = 'ログインして苦手問題に取り組もう！';
         authMessage.style.color = '#0050b3';
@@ -399,6 +432,9 @@ function updateAuthUI() {
         loggedInUserArea.classList.add('hidden');
         // ログインしていない場合は苦手問題ラジオボタンを無効にする
         incorrectOnlyRadio.disabled = true;
+        // ログインしていない場合は苦手問題一覧ボタンを非表示にする
+        showWeakWordsButton.classList.add('hidden'); // ボタンを非表示
+        showWeakWordsButton.disabled = true;
         // ログインしていないのに苦手問題が選択されていたら10問に戻す
         if (incorrectOnlyRadio.checked) {
             document.querySelector('input[name="questionCount"][value="10"]').checked = true;
@@ -420,6 +456,10 @@ function login() {
 
     if (users[username] && users[username].passwordHash === passwordHash) {
         currentUser = users[username];
+        // ログイン時にproblemHistoryがない場合は初期化
+        if (!currentUser.problemHistory) {
+            currentUser.problemHistory = {};
+        }
         saveCurrentUser();
         updateAuthUI();
         authMessage.textContent = `ログインしました。ようこそ、${currentUser.username}さん！`;
@@ -452,7 +492,8 @@ function register() {
     users[username] = {
         username: username,
         passwordHash: passwordHash,
-        incorrectWords: []
+        incorrectWords: [],
+        problemHistory: {} // 新規登録時に問題履歴を初期化
     };
     saveUsers();
     currentUser = users[username];
@@ -484,6 +525,7 @@ function saveSelection() {
     if (currentUser) {
         localStorage.setItem(`selectedUnits_${currentUser.username}`, JSON.stringify(selectedUnitNumbers));
         localStorage.setItem(`questionCount_${currentUser.username}`, selectedCount);
+        // 汎用キーは念のため削除
         localStorage.removeItem(LOCAL_STORAGE_KEYS.SELECTED_UNITS);
         localStorage.removeItem(LOCAL_STORAGE_KEYS.QUESTION_COUNT);
     } else {
@@ -601,7 +643,7 @@ function saveQuizProgress() {
         wordsForQuiz: wordsForQuiz
     };
     localStorage.setItem(`quizProgress_${currentUser.username}`, JSON.stringify(progress));
-    localStorage.removeItem(LOCAL_STORAGE_KEYS.QUIZ_PROGRESS);
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.QUIZ_PROGRESS); // 汎用キーは念のため削除
 }
 
 function clearQuizProgress() {
@@ -627,7 +669,6 @@ usernameInput.addEventListener('keypress', (e) => {
 passwordInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') login();
 });
-
 
 startButton.addEventListener('click', () => {
     let selectedCount = document.querySelector('input[name="questionCount"]:checked').value;
@@ -718,7 +759,7 @@ showAnswerButton.addEventListener('click', () => {
 
 correctButton.addEventListener('click', () => {
     correctCount++;
-    recordCorrectAnswer(wordsForQuiz[currentWordIndex]); // 苦手問題の連続正解を記録する関数呼び出し
+    recordCorrectAnswer(wordsForQuiz[currentWordIndex]); // 苦手問題の連続正解を記録する関数呼び出し & problemHistoryも更新
     goToNextWord();
     saveQuizProgress();
 });
@@ -726,7 +767,7 @@ correctButton.addEventListener('click', () => {
 incorrectButton.addEventListener('click', () => {
     incorrectCount++;
     incorrectWords.push(wordsForQuiz[currentWordIndex]);
-    recordIncorrectAnswer(wordsForQuiz[currentWordIndex]); // 苦手問題を記録する関数呼び出し
+    recordIncorrectAnswer(wordsForQuiz[currentWordIndex]); // 苦手問題を記録する関数呼び出し & problemHistoryも更新
     goToNextWord();
     saveQuizProgress();
 });
@@ -785,6 +826,20 @@ commandInput.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') {
         handleCommandInput();
     }
+});
+
+// 苦手問題一覧ボタンのイベントリスナー (追加)
+showWeakWordsButton.addEventListener('click', () => {
+    if (!currentUser) {
+        alert('苦手問題一覧を見るにはログインが必要です。');
+        return;
+    }
+    showWeakWordsListArea();
+});
+
+// 苦手問題一覧からの戻るボタン (追加)
+backToSelectionFromWeakListButton.addEventListener('click', () => {
+    showSelectionArea();
 });
 
 
@@ -987,9 +1042,10 @@ function parseCSV(csvText) {
         for (let j = 0; j < headers.length; j++) {
             obj[headers[j]] = values[j] ? values[j].trim() : '';
         }
+        // chapter, number, category, question, answer は必須とする
         if (obj.chapter && obj.number && obj.category && obj.question && obj.answer) {
             if (obj.enabled === undefined || obj.enabled === null || obj.enabled === '') {
-                obj.enabled = '1';
+                obj.enabled = '1'; // enabledがない場合はデフォルトで'1' (有効)
             }
             result.push(obj);
         } else {
@@ -1059,14 +1115,24 @@ function unlockAllUnits() {
     }
 }
 
+/**
+ * 問題のユニークなIDを生成するヘルパー関数
+ * @param {Object} word - 単語オブジェクト
+ * @returns {string} - 問題のユニークID (例: chX-uY-questionText)
+ */
+function getProblemId(word) {
+    return `${word.chapter}-${word.number}-${word.question}`;
+}
+
 
 /**
- * ユーザーの苦手問題リストに不正解の問題を記録する。
+ * ユーザーの苦手問題リストに不正解の問題を記録し、問題履歴を更新する。
  * @param {Object} word - 不正解だった単語オブジェクト。
  */
 function recordIncorrectAnswer(word) {
     if (!currentUser) return;
 
+    // 苦手問題リストを更新
     const existingIncorrectWord = currentUser.incorrectWords.find(iw =>
         iw.chapter === word.chapter && iw.number === word.number && iw.question === word.question
     );
@@ -1084,17 +1150,25 @@ function recordIncorrectAnswer(word) {
             correctStreak: 0
         });
     }
+
+    // problemHistoryを更新
+    const problemId = getProblemId(word);
+    if (!currentUser.problemHistory[problemId]) {
+        currentUser.problemHistory[problemId] = { total: 0, correct: 0 };
+    }
+    currentUser.problemHistory[problemId].total++;
+
     saveUsers();
 }
 
 /**
- * ユーザーの苦手問題リストにある問題の連続正解数を更新する。
+ * ユーザーの苦手問題リストにある問題の連続正解数を更新し、問題履歴を更新する。
  * @param {Object} word - 正解した単語オブジェクト。
  */
 function recordCorrectAnswer(word) {
     if (!currentUser) return;
 
-    // 現在のクイズで出題された問題が苦手問題リストにあるか検索
+    // 苦手問題リストを更新
     const existingIncorrectWordIndex = currentUser.incorrectWords.findIndex(iw =>
         iw.chapter === word.chapter && iw.number === word.number && iw.question === word.question
     );
@@ -1107,12 +1181,102 @@ function recordCorrectAnswer(word) {
         if (existingIncorrectWord.correctStreak >= 2) {
             currentUser.incorrectWords.splice(existingIncorrectWordIndex, 1);
             messageText.classList.remove('hidden');
-            messageText.textContent = `「克服！苦手問題から削除しました！`;
+            messageText.textContent = `「${word.question}」を克服！苦手問題から削除しました！`;
             messageText.style.color = '#27ae60';
             setTimeout(() => {
                 messageText.classList.add('hidden');
             }, 3000);
         }
     }
+
+    // problemHistoryを更新
+    const problemId = getProblemId(word);
+    if (!currentUser.problemHistory[problemId]) {
+        currentUser.problemHistory[problemId] = { total: 0, correct: 0 };
+    }
+    currentUser.problemHistory[problemId].total++;
+    currentUser.problemHistory[problemId].correct++;
+
     saveUsers();
+}
+
+/**
+ * ユーザーの苦手問題一覧を表示する関数 (追加)
+ */
+function displayWeakWordsList() {
+    weakWordsContainer.innerHTML = '';
+
+    if (!currentUser || Object.keys(currentUser.problemHistory).length === 0) {
+        weakWordsContainer.innerHTML = '<p style="text-align: center; color: #777; margin-top: 20px;">まだ解答履歴がありません。学習を開始して苦手問題を記録しましょう！</p>';
+        return;
+    }
+
+    const weakProblems = [];
+    for (const problemId in currentUser.problemHistory) {
+        const history = currentUser.problemHistory[problemId];
+        // problemHistoryに問題が記録されているが、wordDataに存在しない場合はスキップ (CSV更新などで消えた場合)
+        const originalWord = wordData.find(wd => getProblemId(wd) === problemId);
+        if (!originalWord) continue;
+
+        const accuracy = history.total > 0 ? (history.correct / history.total) : 0;
+        weakProblems.push({
+            question: originalWord.question,
+            answer: originalWord.answer,
+            total: history.total,
+            correct: history.correct,
+            accuracy: accuracy
+        });
+    }
+
+    // 正答率が低い順にソート。正答率が同じ場合は総回答数が多い方を優先（より多く間違えている）
+    weakProblems.sort((a, b) => {
+        if (a.accuracy !== b.accuracy) {
+            return a.accuracy - b.accuracy;
+        }
+        return b.total - a.total;
+    });
+
+    const top20WeakProblems = weakProblems.slice(0, 20);
+
+    if (top20WeakProblems.length === 0) {
+        weakWordsContainer.innerHTML = '<p style="text-align: center; color: #777; margin-top: 20px;">現在、正答率の低い問題はありません。素晴らしい！</p>';
+        return;
+    }
+
+    top20WeakProblems.forEach(problem => {
+        const listItem = document.createElement('li');
+
+        const questionSpan = document.createElement('span');
+        questionSpan.className = 'question-text';
+        questionSpan.textContent = problem.question;
+
+        const answerContainer = document.createElement('div');
+        answerContainer.className = 'answer-container';
+
+        const answerSpan = document.createElement('span');
+        answerSpan.className = 'answer-text hidden';
+        answerSpan.textContent = problem.answer;
+
+        const showAnswerBtn = document.createElement('button');
+        showAnswerBtn.className = 'show-answer-button secondary-button';
+        showAnswerBtn.textContent = '答えを見る';
+
+        const accuracyDisplay = document.createElement('span');
+        accuracyDisplay.className = 'accuracy-display';
+        const percentage = (problem.accuracy * 100).toFixed(1);
+        accuracyDisplay.innerHTML = `正答率: <span class="rate">${percentage}%</span> (${problem.correct}/${problem.total})`;
+
+        showAnswerBtn.addEventListener('click', () => {
+            answerSpan.classList.remove('hidden');
+            showAnswerBtn.classList.add('hidden');
+        });
+
+        answerContainer.appendChild(answerSpan);
+        answerContainer.appendChild(showAnswerBtn);
+        answerContainer.appendChild(accuracyDisplay); // 正答率表示を答えの横に追加
+
+        listItem.appendChild(questionSpan);
+        listItem.appendChild(answerContainer);
+        weakWordsContainer.appendChild(listItem);
+    });
 }

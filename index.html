@@ -68,6 +68,7 @@
             <div class="selection-buttons">
                 <button id="startButton" class="main-action-button">学習開始</button>
                 <button id="resetSelectionButton" class="secondary-button">選択リセット</button>
+                <button id="showWeakWordsButton" class="secondary-button">苦手問題一覧</button>
             </div>
 
             <div class="command-input-area">
@@ -110,6 +111,18 @@
             <div class="result-buttons">
                 <button id="restartQuizButton" class="main-action-button">もう1回</button>
                 <button id="backToSelectionButton" class="secondary-button">範囲選択に戻る</button>
+            </div>
+        </section>
+
+        <section id="weakWordsListSection" class="weak-words-list-section hidden">
+            <h3>苦手問題一覧 (正答率順)</h3>
+            <div class="weak-words-info">
+                <p>正答率が低い20問を表示しています。</p>
+            </div>
+            <ul id="weakWordsContainer">
+                </ul>
+            <div class="result-buttons">
+                <button id="backToSelectionFromWeakListButton" class="secondary-button">範囲選択に戻る</button>
             </div>
         </section>
 
