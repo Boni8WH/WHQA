@@ -850,7 +850,7 @@ backToSelectionFromWeakListButton.addEventListener('click', () => {
 shareXButton.addEventListener('click', () => {
     const text = generateShareText();
     const url = encodeURIComponent(window.location.href); // アプリのURL
-    const hashtags = encodeURIComponent('KTKの世界史単語帳'); // ハッシュタグ
+    const hashtags = encodeURIComponent('世界史単語帳'); // ハッシュタグ
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${url}&hashtags=${hashtags}`;
     window.open(twitterUrl, '_blank');
 });
